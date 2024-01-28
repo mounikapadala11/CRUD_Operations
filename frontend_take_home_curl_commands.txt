@@ -1,0 +1,261 @@
+
+# Add " | json_pp -json_opt pretty,canonical" at the end of the >> curl command to pretty print the json response
+
+###############################################
+# Create Alert Rule
+###############################################
+>> curl -X 'POST' \
+  'http://localhost:8080/alert-rule' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "name": "server a latency",
+  "description": "alert for server a latency. Alert if latency is greater than 1 second",
+  "expression": "latency{service=\"A\"} > 1000}",
+  "for": 1257893400000000000,
+  "interval": 600,
+  "labels": [
+    {
+      "name": "account",
+      "value": "test2"
+    }
+  ],
+  "annotations": [
+    {
+      "name": "account",
+      "value": "test2"
+    }
+  ]
+}'   | json_pp -json_opt pretty,canonical
+
+
+# Create another alert rule
+>> curl -X 'POST' \
+  'http://localhost:8080/alert-rule' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "name": "server a latency",
+  "description": "alert for server a latency. Alert if latency is greater than 1 second",
+  "expression": "latency{service=\"A\"} > 1000}",
+  "for": 1257893400000000000,
+  "interval": 600,
+  "labels": [
+    {
+      "name": "account",
+      "value": "test2"
+    }
+  ],
+  "annotations": [
+    {
+      "name": "account",
+      "value": "test2"
+    }
+  ]
+}'   | json_pp -json_opt pretty,canonical
+
+
+###############################################
+# Get Alert Rules
+###############################################
+>> curl -X 'GET' 'http://localhost:8080/alert-rules' -H 'accept: application/json'   | json_pp -json_opt pretty,canonical
+
+# Response:
+[
+   {
+      "annotations" : [
+         {
+            "name" : "account",
+            "value" : "test1"
+         }
+      ],
+      "description" : "alert for server a latency. Alert if latency is greater than 1 second",
+      "expression" : "latency{service=\"A\"} > 1000}",
+      "for" : 1257893400000000000,
+      "id" : "dd9d7838-abdf-49d5-a6ce-a5ed13e29054",
+      "interval" : 600,
+      "labels" : [
+         {
+            "name" : "account",
+            "value" : "test1"
+         }
+      ],
+      "name" : "server a latency",
+      "status" : "Firing"
+   },
+   {
+      "annotations" : [
+         {
+            "name" : "account",
+            "value" : "test2"
+         }
+      ],
+      "description" : "alert for server a latency. Alert if latency is greater than 1 second",
+      "expression" : "latency{service=\"A\"} > 1000}",
+      "for" : 1257893400000000000,
+      "id" : "472f3ab0-41b2-4443-84b8-2df011b75c5a",
+      "interval" : 600,
+      "labels" : [
+         {
+            "name" : "account",
+            "value" : "test2"
+         }
+      ],
+      "name" : "server a latency",
+      "status" : "Firing"
+   }
+]
+
+
+
+###############################################
+# Get Alert Rule With ID. Use one of the Ids from the above alert rules.
+###############################################
+>> curl -X 'GET' 'http://localhost:8080/alert-rule/dd9d7838-abdf-49d5-a6ce-a5ed13e29054' -H 'accept: application/json'   | json_pp -json_opt pretty,canonical
+{
+   "annotations" : [
+      {
+         "name" : "account",
+         "value" : "test1"
+      }
+   ],
+   "description" : "alert for server a latency. Alert if latency is greater than 1 second",
+   "expression" : "latency{service=\"A\"} > 1000}",
+   "for" : 1257893400000000000,
+   "id" : "dd9d7838-abdf-49d5-a6ce-a5ed13e29054",
+   "interval" : 600,
+   "labels" : [
+      {
+         "name" : "account",
+         "value" : "test1"
+      }
+   ],
+   "name" : "server a latency",
+   "status" : "Firing"
+}
+
+
+###############################################
+# Update Alert Rule. Use one of the Ids from the above alert rules.
+###############################################
+>> curl -X 'PUT' \
+  'http://localhost:8080/alert-rule/dd9d7838-abdf-49d5-a6ce-a5ed13e29054' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "id": "1fcf11c8-03f9-4dac-9fce-a5789fccbd95",
+  "status": "Normal",
+  "name": "server a latency",
+  "description": "alert for server a latency. Alert if latency is greater than 1 second",
+  "expression": "latency{service=\"A\"} > 2000}",
+  "for": 1257893400000000000,
+  "interval": 600,
+  "labels": [
+    {
+      "name": "account",
+      "value": "test1"
+    }
+  ],
+  "annotations": [
+    {
+      "name": "account",
+      "value": "test1"
+    }
+  ]
+}'   | json_pp -json_opt pretty,canonical
+
+
+
+
+
+
+
+
+###############################################
+# Get All alerts that the backend server has generated for the alert rules. Note: The alerts are created using a probability function. So, the alerts may not be generated every time.
+###############################################
+>> curl -X 'GET' 'http://localhost:8080/alerts' -H 'accept: application/json'  | json_pp -json_opt pretty,canonical
+[
+  {
+     "alertRuleUUID" : "dd9d7838-abdf-49d5-a6ce-a5ed13e29054",
+     "annotations" : [
+        {
+           "name" : "account",
+           "value" : "test1"
+        }
+     ],
+     "endsAt" : "2024-01-03T18:23:08.195734381Z",
+     "expression" : "latency{service=\"A\"} > 1000}",
+     "id" : "39680ef2-ce04-400a-927f-be03e0046269",
+     "labels" : [
+        {
+           "name" : "account",
+           "value" : "test1"
+        }
+     ],
+     "name" : "server a latency alert",
+     "startsAt" : "2024-01-03T18:13:08.195733839Z",
+     "status" : "Firing",
+     "updatedAt" : "2024-01-03T18:22:08.205853589Z"
+  },
+  {
+     "alertRuleUUID" : "472f3ab0-41b2-4443-84b8-2df011b75c5a",
+     "annotations" : [
+        {
+           "name" : "account",
+           "value" : "test2"
+        }
+     ],
+     "endsAt" : "2024-01-03T18:31:08.171621631Z",
+     "expression" : "latency{service=\"A\"} > 1000}",
+     "id" : "933d14af-15a1-4463-87c1-726937583798",
+     "labels" : [
+        {
+           "name" : "account",
+           "value" : "test2"
+        }
+     ],
+     "name" : "server a latency alert",
+     "startsAt" : "2024-01-03T18:21:08.171621381Z",
+     "status" : "Pending",
+     "updatedAt" : "2024-01-03T18:21:08.171621506Z"
+  }
+]
+
+###############################################
+# Get alert using alert id. Use one of the Ids from the above alerts.
+###############################################
+>> curl -X 'GET' 'http://localhost:8080/alert/39680ef2-ce04-400a-927f-be03e0046269' -H 'accept: application/json'  | json_pp -json_opt pretty,canonical
+
+{
+  "alertRuleUUID" : "dd9d7838-abdf-49d5-a6ce-a5ed13e29054",
+  "annotations" : [
+     {
+        "name" : "account",
+        "value" : "test1"
+     }
+  ],
+  "endsAt" : "2024-01-03T18:23:08.195734381Z",
+  "expression" : "latency{service=\"A\"} > 1000}",
+  "id" : "39680ef2-ce04-400a-927f-be03e0046269",
+  "labels" : [
+     {
+        "name" : "account",
+        "value" : "test1"
+     }
+  ],
+  "name" : "server a latency alert",
+  "startsAt" : "2024-01-03T18:13:08.195733839Z",
+  "status" : "Firing",
+  "updatedAt" : "2024-01-03T18:25:38.208908464Z"
+}
+
+
+
+###############################################
+# If you want to reset all the data and start from the beginning.
+###############################################
+
+>> curl -X 'POST' 'http://localhost:8080/clear' -H 'accept: application/json'
+
+

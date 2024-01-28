@@ -1,0 +1,408 @@
+openapi: 3.0.1
+info:
+  title: Oodle Alerts API
+  description: API of the Oodle Alert management.
+  version: 0.0.1
+servers:
+- url: /api/v1/
+paths:
+  /alerts:
+    get:
+      tags:
+      - alerts
+      description: Get the list of alerts. Alerts are instances created from an alerting
+        rule after evaluating the alert-rule expression.
+      responses:
+        "200":
+          description: Get alerts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/alerts'
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: string
+                x-content-type: application/json
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: string
+                x-content-type: application/json
+  /alert/{uuid}:
+    get:
+      tags:
+      - alerts
+      description: Get alert by uuid
+      parameters:
+      - name: uuid
+        in: path
+        description: uuid of the alert to get
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: The alert with uuid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/alert'
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: string
+                x-content-type: application/json
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: string
+                x-content-type: application/json
+  /alert-rules:
+    get:
+      tags:
+      - alert-rules
+      description: Get the list of created alert rules
+      responses:
+        "200":
+          description: Get alert rules response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/alertRules'
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: string
+                x-content-type: application/json
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: string
+                x-content-type: application/json
+  /alert-rule/{uuid}:
+    get:
+      tags:
+      - alert-rules
+      description: Get alert rule by uuid
+      parameters:
+      - name: uuid
+        in: path
+        description: uuid of the alert rule to get
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: The alert rule with uuid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/alertRule'
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: string
+                x-content-type: application/json
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: string
+                x-content-type: application/json
+    put:
+      tags:
+      - alert-rules
+      description: Update alert rule by uuid
+      parameters:
+      - name: uuid
+        in: path
+        description: uuid of the alert rule to update
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: The updated alert rule
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/alertRule'
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: string
+                x-content-type: application/json
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: string
+                x-content-type: application/json
+  /alert-rule:
+    post:
+      tags:
+      - alert-rules
+      description: Create a new Alert Rule
+      requestBody:
+        description: The alert rule to create
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/postableAlertRule'
+        required: true
+      responses:
+        "200":
+          description: The created alert rule
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/alertRule'
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: string
+                x-content-type: application/json
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: string
+                x-content-type: application/json
+      x-codegen-request-body-name: alertRule
+  /clear:
+    post:
+      tags:
+      - admin
+      description: Clears all the data stored in-memory
+      responses:
+        "200":
+          description: success response
+          content: {}
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: string
+                x-content-type: application/json
+components:
+  schemas:
+    alerts:
+      type: array
+      items:
+        $ref: '#/components/schemas/alert'
+      x-schema-name: alerts
+    alert:
+      type: object
+      properties:
+        id:
+          type: string
+          description: uuid to identify the alert
+          format: uuid
+        name:
+          type: string
+          description: name of the alert derived from the alert rule
+        expression:
+          type: object
+          description: The alert-rule expression evaluated to create the alert
+        startsAt:
+          type: string
+          description: The time the alert started at
+          format: date-time
+        updatedAt:
+          type: string
+          description: The time the alert was last updated at
+          format: date-time
+        endsAt:
+          type: string
+          description: The time the alert ends at
+          format: date-time
+        status:
+          type: string
+          description: "Normal -\tThe state of an alert that is neither firing nor\
+            \ pending. Pending\t- The state of an alert that has been active for less\
+            \ than the configured threshold duration. Alerting - The state of an alert\
+            \ that has been active for longer than the configured threshold duration."
+          enum:
+          - normal
+          - pending
+          - alerting
+        labels:
+          $ref: '#/components/schemas/labels'
+        annotations:
+          $ref: '#/components/schemas/annotations'
+        alertRuleUUID:
+          type: string
+          format: uuid
+      example:
+        expression: {}
+        alertRuleUUID: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        name: name
+        startsAt: 2000-01-23T04:56:07.000+00:00
+        annotations:
+        - name: name
+          value: value
+        - name: name
+          value: value
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        endsAt: 2000-01-23T04:56:07.000+00:00
+        updatedAt: 2000-01-23T04:56:07.000+00:00
+        status: normal
+        labels:
+        - name: name
+          value: value
+        - name: name
+          value: value
+    alertRules:
+      type: array
+      items:
+        $ref: '#/components/schemas/alertRule'
+      x-schema-name: alertRules
+    postableAlertRule:
+      required:
+      - annotations
+      - description
+      - expression
+      - labels
+      - name
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+          description: description about the alert rule.
+        expression:
+          type: object
+          description: "The expression evaluated for the alert rule. Alerting rules\
+            \ allow you to define alert conditions based on Prometheus expression\
+            \ language expressions. Eg:request_latency_seconds:mean5m{job=\"myjob\"\
+            } > 0.5"
+        for:
+          type: integer
+          description: represents the elapsed time between two instants as an int64
+            nanosecond count - max time is 290 years. "for" clause causes oodle to
+            wait for a certain duration between first encountering a new expression
+            output vector element and counting an alert as firing for this element.
+            default value of 10 min is used.
+          format: int64
+        interval:
+          type: integer
+          description: an interval in seconds which determines how often the alert
+            rule is evaluated. default value of 10 min is used.
+          format: duration
+        labels:
+          $ref: '#/components/schemas/labels'
+        annotations:
+          $ref: '#/components/schemas/annotations'
+    alertRule:
+      description: "An alert rule is a set of criteria that determine when an alert\
+        \ should fire. It consists of an expression which needs to be evaluated to\
+        \ true, an interval which determines how often the alert rule is evaluated,\
+        \ and a duration over which the expression should be true for an alert to\
+        \ fire. Alert rules are evaluated over their interval, and each alert rule\
+        \ can have zero, one, or any number of alerts firing at a time. The state\
+        \ of the alert rule is determined by its most “severe” alert, which can be\
+        \ one of Normal, Pending, or Firing."
+      allOf:
+      - type: object
+        properties:
+          id:
+            type: string
+            description: uuid to identify the alert rule
+            format: uuid
+          status:
+            type: string
+            description: "Normal\tNone of the time series returned by the evaluation\
+              \ engine is in a Pending or Firing state. Pending\tAt least one time\
+              \ series returned by the evaluation engine is Pending. Firing\tAt least\
+              \ one time series returned by the evaluation engine is Firing."
+            enum:
+            - normal
+            - pending
+            - firing
+      - $ref: '#/components/schemas/postableAlertRule'
+    labels:
+      type: array
+      items:
+        $ref: '#/components/schemas/label'
+      x-schema-name: labels
+    label:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the label
+        value:
+          type: string
+          description: Value for the label
+      description: The labels clause allows specifying a set of additional labels
+        to be attached to the alert. Any existing conflicting labels will be overwritten
+      example:
+        name: name
+        value: value
+    annotations:
+      type: array
+      items:
+        $ref: '#/components/schemas/annotation'
+      x-schema-name: annotations
+    annotation:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the annotation
+        value:
+          type: string
+          description: Value for the annotation
+      description: The annotations clause specifies a set of informational labels
+        that can be used to store longer additional information such as alert descriptions
+        or runbook links
+      example:
+        name: name
+        value: value
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            type: string
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            type: string
+x-original-swagger-version: "2.0"
